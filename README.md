@@ -14,7 +14,7 @@ Free, open-source tool that removes iCloud activation lock from iPhones and iPad
 ### 1. Download
 
 ```bash
-git clone https://github.com/DickyMoe-Bybass/DickyMoe-Bybass.git
+git clone https://github.com/YosefElsersy/DickyMoe-Bybass.git
 cd DickyMoe-Bybass
 ```
 
