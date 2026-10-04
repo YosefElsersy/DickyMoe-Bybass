@@ -1,5 +1,7 @@
 # DickyMoe-ByBass: iCloud Activation Lock Bypass
-![Project Image](./logo.png)
+<p align="center">
+  <img src="./logo.png" alt="Project Image" width="400">
+</p>
 # New improved version will be released soon
 Free, open-source tool that removes iCloud activation lock from iPhones and iPads. Runs locally on your computer -- no servers, no payments, no accounts needed. Just plug in your device and run.
 
