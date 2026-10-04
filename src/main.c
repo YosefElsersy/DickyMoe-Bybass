@@ -1,4 +1,4 @@
-/* main.c -- tr4mpass entry point and orchestration. */
+/* main.c -- DickyMoe-Bybass entry point and orchestration. */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +37,7 @@ typedef struct {
 static void print_banner(void)
 {
     printf("========================================\n"
-           "  tr4mpass v%s\n"
+           "  DickyMoe-Bybass v%s\n"
            "  Activation lock bypass research tool\n"
            "========================================\n\n", TR4MPASS_VERSION);
 }

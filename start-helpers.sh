@@ -22,7 +22,7 @@ msg_warn() { printf "${YELLOW}[!]${RESET} %s\n" "$1"; }
 print_banner() {
     printf "${BOLD}"
     echo "========================================"
-    echo "  tr4mpass v0.2.0"
+    echo "  DickyMoe-Bybass v0.2.0"
     echo "  Activation lock bypass research tool"
     echo "========================================"
     printf "${RESET}\n"
@@ -260,7 +260,7 @@ build_project() {
         exit 1
     fi
 
-    msg_info "Building tr4mpass..."
+    msg_info "Building DickyMoe-Bybass..."
     if ! (cd "$SCRIPT_DIR" && make clean && make); then
         msg_err "Build failed. Check compiler output above."
         msg_info "If the linker reports 'library not found for -lssh2', install libssh2"

@@ -43,7 +43,7 @@ endif
 # Auto-discover all C sources under src/
 SRCS     = $(shell find src -name '*.c')
 OBJS     = $(SRCS:.c=.o)
-TARGET   = tr4mpass
+TARGET   = DickyMoe-Bybass
 
 all: .build-flags $(TARGET)
 

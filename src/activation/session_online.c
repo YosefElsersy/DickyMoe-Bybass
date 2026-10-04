@@ -192,49 +192,96 @@ int session_device_activation_online(device_info_t *dev,
             fclose(f);
             log_info("[session_online] Raw response saved to /tmp/activation_response.txt");
         }
-        int preview_len = resp.len < 300 ? (int)resp.len : 300;
-        log_info("[session_online] Response preview: %.*s", preview_len, resp.data);
+        int preview_len = resp.len < 400 ? (int)resp.len : 400;
+        log_info("[session_online] Response starts with: %.*s", preview_len, resp.data);
     }
 
-    /* Try parsing the full response as plist first */
-    tp_plist_from_memory((const char *)resp.data, (uint32_t)resp.len,
-                      activation_record, NULL);
+    /*
+     * Apple's deviceActivation response can be:
+     *   1) A raw plist (rare)
+     *   2) XML containing a plist with structure:
+     *      <dict>
+     *        <key>iphone-activation</key> (or device-activation)
+     *        <dict>
+     *          <key>activation-record</key>
+     *          <dict>...</dict>
+     *        </dict>
+     *      </dict>
+     *   3) HTML/BuddyML wrapping a plist
+     *
+     * For mobileactivation_activate_with_session we need the
+     * activation-record plist directly.
+     */
+    {
+        plist_t parsed = NULL;
+        const char *xml_data = (const char *)resp.data;
+        uint32_t xml_len = (uint32_t)resp.len;
 
-    /* If that failed, the response is likely HTML-wrapped.
-     * Apple's deviceActivation returns HTML containing a plist.
-     * Extract the <plist>...</plist> section and parse that. */
-    if (!*activation_record && resp.data && resp.len > 0) {
-        const char *plist_start = strstr((const char *)resp.data, "<plist");
+        /* Step 1: Find the plist section if wrapped in HTML/other content */
+        const char *plist_start = strstr(xml_data, "<plist");
         if (plist_start) {
             const char *plist_end = strstr(plist_start, "</plist>");
             if (plist_end) {
                 plist_end += strlen("</plist>");
-                uint32_t plist_len = (uint32_t)(plist_end - plist_start);
-                log_info("[session_online] Found embedded plist (%u bytes), parsing...",
-                         plist_len);
-                tp_plist_from_memory(plist_start, plist_len,
-                                  activation_record, NULL);
+                xml_data = plist_start;
+                xml_len = (uint32_t)(plist_end - plist_start);
+                log_info("[session_online] Extracted plist region: %u bytes", xml_len);
             }
         }
-    }
 
-    /* If still no luck, try looking for the iphone-activation protocol response.
-     * Some responses wrap the plist in a <ResponseEnvelope> or similar. */
-    if (!*activation_record && resp.data && resp.len > 0) {
-        const char *proto_start = strstr((const char *)resp.data, "<?xml");
-        if (proto_start) {
-            uint32_t proto_len = (uint32_t)(resp.len - (size_t)(proto_start - (const char *)resp.data));
-            log_info("[session_online] Found XML at offset %td, parsing %u bytes...",
-                     proto_start - (const char *)resp.data, proto_len);
-            tp_plist_from_memory(proto_start, proto_len,
-                              activation_record, NULL);
+        /* Step 2: Parse the plist XML */
+        plist_from_xml(xml_data, xml_len, &parsed);
+
+        if (!parsed) {
+            /* Try with tp_plist_from_memory as fallback */
+            tp_plist_from_memory(xml_data, xml_len, &parsed, NULL);
         }
+
+        if (!parsed) {
+            log_error("[session_online] Could not parse any plist from response");
+            free(resp.data);
+            return -1;
+        }
+
+        log_info("[session_online] Parsed plist successfully");
+
+        /* Step 3: Extract activation-record from nested structure.
+         * Look for: iphone-activation -> activation-record
+         *       or: device-activation -> activation-record
+         *       or: ActivationRecord (top-level) */
+        plist_t act_node = plist_dict_get_item(parsed, "iphone-activation");
+        if (!act_node)
+            act_node = plist_dict_get_item(parsed, "device-activation");
+
+        if (act_node) {
+            plist_t record = plist_dict_get_item(act_node, "activation-record");
+            if (record) {
+                log_info("[session_online] Found activation-record inside response");
+                *activation_record = plist_copy(record);
+            } else {
+                /* The whole iphone-activation dict might be what we need */
+                log_info("[session_online] No activation-record key, using activation node");
+                *activation_record = plist_copy(act_node);
+            }
+        } else {
+            plist_t record = plist_dict_get_item(parsed, "ActivationRecord");
+            if (record) {
+                log_info("[session_online] Found ActivationRecord at top level");
+                *activation_record = plist_copy(record);
+            } else {
+                /* Use the entire parsed plist as the activation record */
+                log_info("[session_online] Using entire parsed plist as activation record");
+                *activation_record = plist_copy(parsed);
+            }
+        }
+
+        plist_free(parsed);
     }
 
     free(resp.data);
 
     if (!*activation_record) {
-        log_error("[session_online] Failed to parse deviceActivation response");
+        log_error("[session_online] Failed to extract activation record");
         return -1;
     }
 

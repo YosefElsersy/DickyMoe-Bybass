@@ -1,6 +1,6 @@
-# DickyMoe-ByBass: iCloud Activation Lock Bypass
+# DickyMoe-Bybass: iCloud Activation Lock Bypass
 <p align="center">
-  <img src="./logo.png" alt="Project Image" width="400">
+  <img src="./DickyMoe-iCloud-Bypass-Banner.png" alt="Project Image" width="400">
 </p>
 # New improved version will be released soon
 Free, open-source tool that removes iCloud activation lock from iPhones and iPads. Runs locally on your computer -- no servers, no payments, no accounts needed. Just plug in your device and run.
@@ -122,17 +122,17 @@ If you prefer to run things manually instead of using `start.sh`:
 make
 
 # Just identify your device (no bypass)
-./DickyMoe-ByBass --detect-only
+./DickyMoe-Bybass --detect-only
 
 # Run with full debug output
-./DickyMoe-ByBass --verbose
+./DickyMoe-Bybass --verbose
 
 # Force a specific bypass path
-./DickyMoe-ByBass --force-path-a    # checkm8 (A5-A11 devices)
-./DickyMoe-ByBass --force-path-b    # session activation (A12+ devices)
+./DickyMoe-Bybass --force-path-a    # checkm8 (A5-A11 devices)
+./DickyMoe-Bybass --force-path-b    # session activation (A12+ devices)
 
 # Preview what would happen without doing it
-./DickyMoe-ByBass --dry-run
+./DickyMoe-Bybass --dry-run
 ```
 
 <details>
@@ -187,7 +187,7 @@ Then open a WSL terminal and follow the Linux instructions.
 
 ## How It Works (Technical)
 
-DickyMoe-ByBass has two bypass paths, selected automatically based on your device's chip:
+DickyMoe-Bybass has two bypass paths, selected automatically based on your device's chip:
 
 ### Path A -- checkm8 (A5 through A11)
 

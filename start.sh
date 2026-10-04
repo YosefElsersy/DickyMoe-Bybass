@@ -1,5 +1,5 @@
 #!/bin/bash
-# tr4mpass -- Guided activation lock bypass wrapper
+# DickyMoe-Bybass -- Guided activation lock bypass wrapper
 # Cross-platform OS detection, dependency installation, device
 # detection, DFU guidance, and bypass execution.
 #
@@ -9,7 +9,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BINARY="$SCRIPT_DIR/tr4mpass"
+BINARY="$SCRIPT_DIR/DickyMoe-Bybass"
 HELPERS="$SCRIPT_DIR/start-helpers.sh"
 
 # ------------------------------------------------------------------ #
@@ -134,7 +134,7 @@ main() {
     fi
 
     echo ""
-    msg_info "Starting tr4mpass..."
+    msg_info "Starting DickyMoe-Bybass..."
     echo ""
 
     # Final validation before exec.
